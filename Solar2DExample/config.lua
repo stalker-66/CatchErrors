@@ -20,4 +20,6 @@ application =
 		},
 		--]]
 	},
+
+	showRuntimeErrors = false,
 }

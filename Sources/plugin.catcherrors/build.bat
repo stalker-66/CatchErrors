@@ -33,7 +33,7 @@ if not "%3"=="" (
 
 set SevenZip="%PATH_BAT%\bin\7za.exe"
 
-set LIBRARY_NAME=realtimelog
+set LIBRARY_NAME=catcherrors
 set LIBRARY_TYPE="plugin"
 
 set ZIP_PATH=%PATH_BAT%\build\%LIBRARY_NAME%-lua.tgz

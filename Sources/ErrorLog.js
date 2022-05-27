@@ -66,11 +66,53 @@ function getBlobs(rootFolder, path) {
   return blobs;
 }
 
+function checkExistError(unic) {
+  // get sheets list
+  let sheets = SpreadsheetApp.getActive().getSheets();
+  let sheetList = [];
+  for (let j=0 ; j<sheets.length ; j++) {
+    sheetList[j] = sheets[j].getName();
+  }
+
+  // search errors
+  for (let j = 0; j < typeList.length; j++) {
+    let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName( typeList[j] );
+    let rows = sheet.getDataRange();
+    let numRows = rows.getNumRows();
+
+    for (let i = numRows; i >= 2; i--) {
+      let curUnic = sheet.getRange("B" + i).getValue();
+      if ( curUnic === unic ) {
+        return true
+      }
+    }
+  }
+
+  return false;
+}
+
 function doPost(e) {
   // contents
   let contents = JSON.parse('{}');
   if (e != null && e.postData != null && e.postData.contents != null) {
     contents = JSON.parse(e.postData.contents.replace(/\n/g, ''));
+  }
+
+  // unic
+  let unic = '0000-0000-0000';
+  if (contents.unic != null) {
+    unic = Utilities.base64Decode( contents.unic, Utilities.Charset.UTF_8 );
+    unic = Utilities.newBlob( unic ).getDataAsString();
+  }
+
+  // check exist error
+  if ( checkExistError(unic) ) {
+    let resp = {};
+    resp.success = 1;
+    resp.unic = unic;
+    resp.desc = "Error is exist."
+
+    return ContentService.createTextOutput(JSON.stringify(resp));
   }
 
   // get sheets list
@@ -102,13 +144,6 @@ function doPost(e) {
   if (contents.date != null) {
     date = Utilities.base64Decode( contents.date, Utilities.Charset.UTF_8 );
     date = Utilities.newBlob( date ).getDataAsString();
-  }
-
-  // unic
-  let unic = '0000-0000-0000';
-  if (contents.unic != null) {
-    unic = Utilities.base64Decode( contents.unic, Utilities.Charset.UTF_8 );
-    unic = Utilities.newBlob( unic ).getDataAsString();
   }
 
   // code
@@ -154,15 +189,18 @@ function doPost(e) {
 
   // compress
   let folder = DriveApp.getFolderById(newFolderId);
-  let zipped = Utilities.zip(getBlobs(folder, ''), folder.getName()+'.zip');
-  let zipId = folder.getParents().next().createFile(zipped).getId();
+  let blobs = getBlobs(folder, '');
+  let isZip = blobs.length > 0;
+
+  let zipped = isZip ? Utilities.zip(blobs, folder.getName()+'.zip') : null;
+  let zipId = isZip ? folder.getParents().next().createFile(zipped).getId() : null;
 
   // garbage collector
   let folderToDelete = DriveApp.getFolderById(newFolderId);
   folderToDelete.setTrashed(true);
 
   // create link
-  let link = 'https://drive.google.com/file/d/' + zipId + '/view?usp=sharing';
+  let link = isZip ? 'https://drive.google.com/file/d/' + zipId + '/view?usp=sharing' : null;
 
   // fill sheet
   curSheet.getRange("A" + posSheet).setValue(date);
@@ -170,7 +208,7 @@ function doPost(e) {
   curSheet.getRange("C" + posSheet).setValue(code);
   curSheet.getRange("D" + posSheet).setValue(message);
   curSheet.getRange("E" + posSheet).setValue(platform);
-  curSheet.getRange("F" + posSheet).setFormula('=HYPERLINK("' + link + '","Download")');
+  curSheet.getRange("F" + posSheet).setFormula( isZip ? '=HYPERLINK("' + link + '","Download")' : null );
 
   // response
   let resp = {};
