@@ -1,6 +1,6 @@
 # CatchErrors
 ## Overview
-The "CatchErrors" plugin allows you to remotely catch lua errors in an application built on the Solar2D engine and send errors to Google Spreadsheets.
+The "CatchErrors" plugin allows you to remotely catch lua errors in an application built on the Solar2D engine and send errors to Google Spreadsheets with user files attached.
 ## Project Settings
 To use this plugin, add an entry into the plugins table of ***build.settings***.
 ```lua
