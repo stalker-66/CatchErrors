@@ -32,7 +32,7 @@ local catcherrors = require "plugin.catcherrors"
 > ```
 > The ***params*** table includes parameters for **catcherrors** initialization. <br/>
 > * **deploymentID** (required) <br/>
-> `String`. Your Deployment ID. See more - [How to get Deployment ID](https://github.com/stalker-66/CatchErrors/blob/10d2f0a4b31c427718e9fbd4634890f1c8ccfe15/Docs/How%20to%20get%20Deployment%20ID.md). <br/>
+> `String`. Your Deployment ID. See more - [How to get Deployment ID](https://github.com/stalker-66/CatchErrors/blob/5bcc7221d9992b1fd2e451416b488a4a545584b2/Docs/How%20to%20get%20Deployment%20ID.md). <br/>
 > * **fileList** (optional) <br/>
 > `Table`. List of files to upload with the error message. Default is `nil`. <br/> <br/>
 > By default, the file `log.catcherrors` will be sent, which contains all the ***print*** of the user. The `fileList` must include tables with parameters: ***filename*** and ***baseDir***. <br/>
