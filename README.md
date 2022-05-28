@@ -21,6 +21,14 @@ settings =
 > For **Android**, when using this plugin, don't forget to add the following permissions/features:
 > * "android.permission.INTERNET"
 > * "android.permission.WRITE_EXTERNAL_STORAGE"
+
+Disable show runtime errors in ***config.lua***.
+```lua
+application =
+{
+	showRuntimeErrors = false,
+}
+```
 ## Require
 ```lua
 local catcherrors = require "plugin.catcherrors"
@@ -95,6 +103,8 @@ local catcherrors = require "plugin.catcherrors"
 >		},
 >	},
 > 	```
+> * **workSimulator** (optional) <br/>
+> `Boolean`. Enable/Disable automatic error catching on the simulator. Default is `false`. <br/>
 > * **debug** (optional) <br/>
 > `Boolean`. Includes additional debugging information for the plugin. Default is `false`. <br/>
 
