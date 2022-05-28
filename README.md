@@ -98,44 +98,41 @@ local catcherrors = require "plugin.catcherrors"
 > * **debug** (optional) <br/>
 > `Boolean`. Includes additional debugging information for the plugin. Default is `false`. <br/>
 
-> Calling this function clears the log.
+> Call this function if the localization of the application has changed. This will allow you to change the localization of the error message.
 > ```lua
-> realtimelog.clear()
+> catcherrors.setLanguageMessage(value)
 > ```
+> * **value** (optional) <br/>
+> `String`. Two language letters for ***ISO 639-1*** format. The localization must be present in the **listErrorMessage** table. Default is `Auto`. <br/>
 
-> Plugin stop. After calling this function, initialization is required to work with the plugin.
+> This function allows you to send custom error from anywhere in the application.
 > ```lua
-> realtimelog.stop()
+> catcherrors.send(params)
+> ```
+> The ***params*** table includes parameters for send a custom error. <br/>
+> * **type** (optional) <br/>
+> `String`. Type of custom error. Default is `Warning`. <br/> <br/>
+> Supported values: <br/>
+> `Warning` - Sending ***Warning*** errors. <br/>
+> `Crash` - Sending ***Crash*** errors. <br/> <br/>
+> * **errorCode** (optional) <br/>
+> `Number`. Enter your error code. Default is `0`. <br/>
+> The default runtime error code is `9999`. Please do not use this code. <br/>
+> * **message** (optional) <br/>
+> `String`. Enter your error message. Default is `NoMessage`. <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.send({
+> 	type = "Warning",
+> 	errorCode = 10,
+> 	message = "Test Warning",
+> })
 > ```
 ## Usage
-> The **realtimelog** plugin modifies the standard ***print*** function. You must use ***print*** in your app. The printout will be sent to the ***console*** and your ***Spreadsheet***. <br/>
-> `Example:` <br/>
-> ```lua
-> print( "My Test Print" )
-> ```
-> `Output:` <br/>
-> **Corona Simulator Console:** <br/>
-> ![Make a copy](https://github.com/stalker-66/RealTimeLog/blob/20b18143cffcd82e2599e3c6f2ad99c2998b466d/Docs/res/16.png?raw=true)
-> **You Spreadsheet:** <br/>
-> ![Make a copy](https://github.com/stalker-66/RealTimeLog/blob/20b18143cffcd82e2599e3c6f2ad99c2998b466d/Docs/res/17.png?raw=true)
-
-> The **realtimelog** plugin supports **3 types of messages**:
-> * **Info** - standard message on a white background. Default for `all messages`.
-> * **Warning** - message on a yellow background.
-> * **Error** - message on a red background.
-> 
-> To specify the message type you need to use the `"@type=YOU_TYPE@"` modifier. Where **YOU_TYPE** is the name of the message type.  <br/>
-> `Example:` <br/>
-> ```lua
-> print( "@type=Info@My message about Info" )
-> print( "@type=Warning@My message about Warning" )
-> print( "@type=Error@My message about Error" )
-> ```
-> `Output:` <br/>
-> **Corona Simulator Console:** <br/>
-> ![Make a copy](https://github.com/stalker-66/RealTimeLog/blob/765803458b09547daceb45a6a604536e399687e3/Docs/res/18.png?raw=true)
-> **You Spreadsheet:** <br/>
-> ![Make a copy](https://github.com/stalker-66/RealTimeLog/blob/765803458b09547daceb45a6a604536e399687e3/Docs/res/19.png?raw=true)
+> After the plugin is initialized, lua error catching starts. This completes the setup. You can use the ***catcherrors.send*** function in your application to send errors. <br/>
+> If the error is not sent after it occurs, the error will continue to be sent the next time the application is run. <br/>
+> The plugin is compatible with [RealTimeLog](https://github.com/stalker-66/RealTimeLog).
 ## Extras
 > The ***print*** function now supports output lua tables. <br/>
 > `Example:` <br/>
