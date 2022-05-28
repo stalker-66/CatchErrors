@@ -28,6 +28,7 @@ local private = {
 	config = {},
 	url = "https://script.google.com/macros/s/youDeploymentID/exec",
 	platform = system.getInfo("platform").." "..system.getInfo("platformVersion"),
+	workSimulator = false,
 	debug = false,
 	init = false,
 
@@ -326,6 +327,10 @@ public.init = function(p)
 	if p.delaySend==nil then
 		p.delaySend = private.delaySend
 	end
+	p.workSimulator = p.workSimulator
+	if p.workSimulator==nil then
+		p.workSimulator = private.workSimulator
+	end
 	p.languageErrorMessage = p.languageErrorMessage or private.languageErrorMessage
 	p.listErrorMessage = p.listErrorMessage or private.listErrorMessage
 	p.debug = p.debug
@@ -363,14 +368,20 @@ public.init = function(p)
 	private.loadConfig()
 	private.sendToServer()
 
+	-- work simulator
+	private.workSimulator = p.workSimulator
+
 	-- handle error
-	Runtime:addEventListener( "unhandledError", function(e)
-		public.send({
-			type = "Crash",
-			errorCode = 9999,
-			message = e.errorMessage.."\n"..e.stackTrace,
-		})
-	end )
+	local environment = system.getInfo("environment")
+	if (environment=="simulator" and private.workSimulator) or environment~="simulator" then
+		Runtime:addEventListener( "unhandledError", function(e)
+			public.send({
+				type = "Crash",
+				errorCode = 9999,
+				message = e.errorMessage.."\n"..e.stackTrace,
+			})
+		end )
+	end
 	
 	-- global --
 	_G.printEvents = _G.printEvents or {}
@@ -460,6 +471,8 @@ public.send = function(p)
 	p.type = p.type or "Warning"
 	p.errorCode = p.errorCode or 0
 	p.message = p.message or "NoMessage"
+
+	print("type: "..tostring(p.type).."\nerrorCode: "..tostring(p.errorCode).."\nmessage:"..tostring(p.message))
 
 	private.setTask(p)
 

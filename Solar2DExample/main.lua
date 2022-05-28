@@ -19,6 +19,7 @@ catcherrors.init({
 			button = "OK",
 		}
 	},
+	workSimulator = true,
 	debug = true,
 })
 
