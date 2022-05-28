@@ -472,7 +472,8 @@ public.send = function(p)
 	p.errorCode = p.errorCode or 0
 	p.message = p.message or "NoMessage"
 
-	print("type: "..tostring(p.type).."\nerrorCode: "..tostring(p.errorCode).."\nmessage:"..tostring(p.message))
+	-- add an error to the end of the log
+	print("type: "..tostring(p.type).."\nerrorCode: "..tostring(p.errorCode).."\nmessage: "..tostring(p.message))
 
 	private.setTask(p)
 
