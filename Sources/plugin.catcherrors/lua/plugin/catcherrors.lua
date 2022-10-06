@@ -23,7 +23,7 @@ local _print = print
 -- [[ PRIVATE ]] --
 local private = {
 	fileList = {
-		{ filename = "log.catcherrors", baseDir = system.DocumentsDirectory }
+		{ filename = "log.catcherrors", baseDir = system.DocumentsDirectory, system = true }
 	},
 	config = {},
 	url = "https://script.google.com/macros/s/youDeploymentID/exec",
@@ -336,12 +336,7 @@ public.init = function(p)
 	p.debug = p.debug
 
 	-- files
-	for i=1,#p.fileList do
-		local filename = p.fileList[i].filename or ""
-		local baseDir = p.fileList[i].baseDir or system.DocumentsDirectory
-
-		private.fileList[#private.fileList+1] = { filename = filename, baseDir = baseDir }
-	end
+	public.setFileList(p.fileList)
 
 	-- send files
 	private.sendFiles = p.sendFiles
@@ -407,6 +402,27 @@ public.init = function(p)
 	end
 
 	return true
+end
+
+public.setFileList = function(newList)
+	local newList = newList or {}
+
+	-- clear file list
+	local newPrivateFileList = {}
+	for i=1,#private.fileList do
+		if private.fileList[i].system then
+			newPrivateFileList[#newPrivateFileList+1] = private.fileList[i]
+		end
+	end
+	private.fileList = newPrivateFileList
+
+	-- new file list
+	for i=1,#newList do
+		local filename = newList[i].filename or ""
+		local baseDir = newList[i].baseDir or system.DocumentsDirectory
+
+		private.fileList[#private.fileList+1] = { filename = filename, baseDir = baseDir }
+	end
 end
 
 public.clearLog = function()
