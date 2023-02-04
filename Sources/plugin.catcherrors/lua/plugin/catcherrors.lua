@@ -172,6 +172,9 @@ private.setTask = function(p)
 	p.type = p.type or "Warning"
 	p.errorCode = p.errorCode or 0
 	p.message = p.message or "NoMessage"
+	
+	p.appVersion = p.appVersion or private.appVersion
+	p.customParams = p.customParams or private.customParams
 
 	local unic = private.getUnic()
 	local body = {}
@@ -194,11 +197,11 @@ private.setTask = function(p)
 	body.code = p.errorCode
 	body.message = mime_b64(p.message)
 	body.platform = private.platform
-	body.appVersion = private.appVersion
+	body.appVersion = p.appVersion
 
 	local customParams = nil
-	if private.customParams and type(private.customParams)=="table" then
-		customParams = json.encode(private.customParams)
+	if p.customParams and type(p.customParams)=="table" then
+		customParams = json.encode(p.customParams)
 	end
 	body.customParams = customParams
 
@@ -518,6 +521,9 @@ public.send = function(p)
 	p.type = p.type or "Warning"
 	p.errorCode = p.errorCode or 0
 	p.message = p.message or "NoMessage"
+
+	p.appVersion = private.appVersion
+	p.customParams = private.customParams
 
 	-- add an error to the end of the log
 	print("type: "..tostring(p.type).."\nerrorCode: "..tostring(p.errorCode).."\nmessage: "..tostring(p.message))
