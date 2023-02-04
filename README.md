@@ -103,6 +103,19 @@ local catcherrors = require "plugin.catcherrors"
 >		},
 >	},
 > 	```
+> * **appVersion** (optional) <br/>
+> `String`. Your application version. Default is `appVersionString`. See more - [system.getInfo("appVersionString")](https://docs.coronalabs.com/api/library/system/getInfo.html#appversionstring). <br/>
+> * **customParams** (optional) <br/>
+> `Table`. List of custom parameters to upload with error message. Default is `nil`. <br/>
+> The parameter table must have the format: `key = value`. <br/>
+> Supported data type for ***key*** and ***value***: `string`, `number`, `boolean`. <br/>
+> ***The parameter table must not contain nested tables***. <br/>
+> 	`Example:` <br/>
+> 	```lua
+> 	{
+> 		name = "John",
+> 		email = "jh@jh.com",
+> 	}
 > * **workSimulator** (optional) <br/>
 > `Boolean`. Enable/Disable automatic error catching on the simulator. Default is `false`. <br/>
 > * **debug** (optional) <br/>
