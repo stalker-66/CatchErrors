@@ -139,6 +139,55 @@ local catcherrors = require "plugin.catcherrors"
 > 	message = "Test Warning",
 > })
 > ```
+
+> Call this function if you need to replace the list of files that will be attached to the error after initialization.
+> ```lua
+> catcherrors.setFileList(fileList)
+> ```
+> * **fileList** (optional) <br/>
+> `Table`. List of files to upload with the error message. Default is `nil`. <br/> <br/>
+> By default, the file `log.catcherrors` will be sent, which contains all the ***print*** of the user. The `fileList` must include tables with parameters: ***filename*** and ***baseDir***. <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.setFileList({
+> 	{ filename = "myFile1.txt", baseDir = system.ResourceDirectory },
+> 	{ filename = "myFile2.png", baseDir = system.DocumentsDirectory },
+> })
+> ```
+> The file size directly affects the speed of sending errors. <br/>
+> If you plan to upload files from ***system.ResourceDirectory***, be aware of Android limitations. See more - [system.ResourceDirectory](https://docs.coronalabs.com/api/library/system/ResourceDirectory.html). <br/>
+
+> This function allows you to change the application version after initialization.
+> ```lua
+> catcherrors.setAppVersion(version)
+> ```
+> * **version** (optional) <br/>
+> `String`. Your application version. Default is `appVersionString`. See more - [system.getInfo("appVersionString")](https://docs.coronalabs.com/api/library/system/getInfo.html#appversionstring). <br/> <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.setAppVersion("1.002")
+> ```
+
+> Call this function if you need to set custom parameters that will be attached to the error after initialization.
+> ```lua
+> catcherrors.setCustomParams(paramsList)
+> ```
+> * **paramsList** (optional) <br/>
+> `Table`. List of custom parameters to upload with error message. Default is `nil`. <br/> <br/>
+> The parameter table must have the format: `key = value`. <br/>
+> Supported data type for ***key*** and ***value***: `string`, `number`, `boolean`. <br/>
+> ***The parameter table must not contain nested tables***. <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.setCustomParams({
+> 	name = "John",
+> 	email = "jh@jh.com",
+> })
+> ```
+
 ## Usage
 > * After the plugin is initialized, lua error catching starts. This completes the setup. You can use the ***catcherrors.send*** function in your application to send errors. <br/>
 > * If the error is not sent after it occurs, the error will continue to be sent the next time the application is run. <br/>
