@@ -163,7 +163,7 @@ local catcherrors = require "plugin.catcherrors"
 > catcherrors.setAppVersion(version)
 > ```
 > * **version** (optional) <br/>
-> `String`. Your application version. Default is `nil`. <br/> <br/>
+> `String`. Your application version. Default is `appVersionString`. See more - [system.getInfo("appVersionString")](https://docs.coronalabs.com/api/library/system/getInfo.html#appversionstring). <br/> <br/>
 > 
 > `Example:` <br/>
 > ```lua
