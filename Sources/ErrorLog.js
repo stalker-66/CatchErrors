@@ -1,14 +1,21 @@
-const typeList = ['Warning','Crash'];
+// Parameters
+let typeList = ['Warning','Crash'];
+let colors = ["#ffffbf","#ffd6d6"];
 
-function clearWarning()
+let sheetWarning = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Warning');
+let sheetCrash = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Crash');
+let startDataPosition = 1;
+
+// Clear Warning List
+function clearWarning(skipErrors)
 {
-  // select sheet
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(typeList[0]);
-  let rows = sheet.getDataRange();
-  let numRows = rows.getNumRows();
+  let lastRow = sheetWarning.getLastRow();
+  let deleteDelta = lastRow-startDataPosition;
+  let sPos = startDataPosition+1;
 
-  for (let i = numRows; i >= 2; i--) {
-    let filename = sheet.getRange("B" + i).getValue();
+  // remove files
+  for (let i = sPos; i <= lastRow; i++) {
+    let filename = sheetWarning.getRange("B" + i).getValue();
     filename = filename + '.zip';
     let files = DriveApp.getFilesByName(filename);
 
@@ -17,22 +24,32 @@ function clearWarning()
       file.setTrashed(true);
     }
   }
-
-  for (let i = numRows; i >= 3; i--) {
-    sheet.deleteRow(i);
-  }
-  sheet.getRange("A2"+":F2").setBackground("#ffe599").clearContent();
+  
+  // clear list
+  if (deleteDelta>1) {
+    sheetWarning.deleteRows(sPos, deleteDelta-1);
+    sheetWarning.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[0]).clearContent();
+  } else if (deleteDelta==1) {
+    sheetWarning.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[0]).clearContent();
+  } else {
+    sheetWarning.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[0]);
+    if (skipErrors && skipErrors == true) {
+    } else {
+      throw new Error( 'Warning is empty.' );
+    };
+  };
 }
 
-function clearCrash()
+// Clear Crash List
+function clearCrash(skipErrors)
 {
-  // select sheet
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(typeList[1]);
-  let rows = sheet.getDataRange();
-  let numRows = rows.getNumRows();
+  let lastRow = sheetCrash.getLastRow();
+  let deleteDelta = lastRow-startDataPosition;
+  let sPos = startDataPosition+1;
 
-  for (let i = numRows; i >= 2; i--) {
-    let filename = sheet.getRange("B" + i).getValue();
+  // remove files
+  for (let i = sPos; i <= lastRow; i++) {
+    let filename = sheetWarning.getRange("B" + i).getValue();
     filename = filename + '.zip';
     let files = DriveApp.getFilesByName(filename);
 
@@ -41,131 +58,79 @@ function clearCrash()
       file.setTrashed(true);
     }
   }
-
-  for (let i = numRows; i >= 3; i--) {
-    sheet.deleteRow(i);
-  }
-  sheet.getRange("A2"+":F2").setBackground("#ea9999").clearContent();
+  
+  // clear list
+  if (deleteDelta>1) {
+    sheetCrash.deleteRows(sPos, deleteDelta-1);
+    sheetCrash.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[1]).clearContent();
+  } else if (deleteDelta==1) {
+    sheetCrash.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[1]).clearContent();
+  } else {
+    sheetCrash.getRange('A' + sPos + ':' + 'H' + sPos).setBackground(colors[1]);
+    if (skipErrors && skipErrors == true) {
+    } else {
+      throw new Error( 'Crash is empty.' );
+    };
+  };
 }
 
-function getBlobs(rootFolder, path) {
-  let blobs = [];
-  let files = rootFolder.getFiles();
-  while (files.hasNext()) {
-    let file = files.next().getBlob();
-    file.setName(path+file.getName());
-    blobs.push(file);
-  }
-  let folders = rootFolder.getFolders();
-  while (folders.hasNext()) {
-    let folder = folders.next();
-    let fPath = path+folder.getName()+'/';
-    blobs.push(Utilities.newBlob([]).setName(fPath)); // comment/uncomment this line to skip/include empty folders
-    blobs = blobs.concat(getBlobs(folder, fPath));
-  }
-  return blobs;
-}
-
-function checkExistError(unic) {
-  // get sheets list
-  let sheets = SpreadsheetApp.getActive().getSheets();
-  let sheetList = [];
-  for (let j=0 ; j<sheets.length ; j++) {
-    sheetList[j] = sheets[j].getName();
-  }
-
-  // search errors
-  for (let j = 0; j < typeList.length; j++) {
-    let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName( typeList[j] );
-    let rows = sheet.getDataRange();
-    let numRows = rows.getNumRows();
-
-    for (let i = numRows; i >= 2; i--) {
-      let curUnic = sheet.getRange("B" + i).getValue();
-      if ( curUnic === unic ) {
-        return true
-      }
-    }
-  }
-
-  return false;
-}
-
+// Post request
 function doPost(e) {
-  // contents
-  let contents = JSON.parse('{}');
-  if (e != null && e.postData != null && e.postData.contents != null) {
-    contents = JSON.parse(e.postData.contents.replace(/\n/g, ''));
-  }
+  if (!e) {
+    // fake request
+    e = {
+      parameter: {
+        unic: 'errorUnicTest',
+        type: 'Warning', // Warning or Crash
+        date: '12/28/22 19:44:07',
+        code: 3333,
+        message: 'VGVzdCBFcnJvciBNZXNzYWdl',
+        platform: 'Sandbox',
+        appVersion: '1.002',
+        customParams: '{ "name": "John Doe", "email": "jd@jd.com" }'
+      }
+    };
+  };
 
-  // unic
-  let unic = '0000-0000-0000';
-  if (contents.unic != null) {
-    unic = Utilities.base64Decode( contents.unic, Utilities.Charset.UTF_8 );
-    unic = Utilities.newBlob( unic ).getDataAsString();
-  }
+  // response
+  let resp = drawLog(e.parameter,e.postData);
+
+  console.log(resp);
+
+  return ContentService.createTextOutput(JSON.stringify(resp));
+};
+
+// Draw log
+function drawLog(params,postData) {
+  params = params ? params : {};
+  postData = postData ? postData : {};
+
+  let unic = params.unic ? params.unic : '0000-0000-0000';
+  let type = params.type ? params.type : 'undefined';
+  let date = params.date ? params.date : 'undefined';
+  let code = params.code ? params.code : 'undefined';
+  let message = params.message ? params.message : 'dW5kZWZpbmVk';
+  let platform = params.platform ? params.platform : 'undefined';
+  let appVersion = params.appVersion ? params.appVersion : 'undefined';
+  let customParams = params.customParams ? params.customParams : '{}';
+
+  let link = undefined;
+  
+  let sheet = type === 'Crash' ? sheetCrash : sheetWarning;
+  let lastRow = sheet.getLastRow();
+  let startLength = lastRow + 1;
 
   // check exist error
-  if ( checkExistError(unic) ) {
-    let resp = {};
-    resp.success = 1;
-    resp.unic = unic;
-    resp.desc = "Error is exist."
-
-    return ContentService.createTextOutput(JSON.stringify(resp));
-  }
-
-  // get sheets list
-  let sheets = SpreadsheetApp.getActive().getSheets();
-  let sheetList = [];
-  for (let j=0 ; j<sheets.length ; j++) {
-    sheetList[j] = sheets[j].getName();
-  }
-
-  // search GID by type
-  let curType = typeList[0];
-  if (contents.type != null) {
-    let reqType = Utilities.base64Decode( contents.type, Utilities.Charset.UTF_8 );
-    reqType = Utilities.newBlob( reqType ).getDataAsString();
-
-    for (let j = 0; j < typeList.length; j++) {
-      if (reqType == typeList[j]) {
-        curType = typeList[j];
-      }
-    }
-  }
-
-  // select active sheet
-  let curSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(curType);
-  let posSheet = curSheet.getLastRow() + 1;
-
-  // date
-  let date = '--/--/-- --:--:--';
-  if (contents.date != null) {
-    date = Utilities.base64Decode( contents.date, Utilities.Charset.UTF_8 );
-    date = Utilities.newBlob( date ).getDataAsString();
-  }
-
-  // code
-  let code = '0';
-  if (contents.code != null) {
-    code = Utilities.base64Decode( contents.code, Utilities.Charset.UTF_8 );
-    code = Utilities.newBlob( code ).getDataAsString();
-  }
-
-  // message
-  let message = '--- --- --- --- --- ---';
-  if (contents.message != null) {
-    message = Utilities.base64Decode( contents.message, Utilities.Charset.UTF_8 );
-    message = Utilities.newBlob( message ).getDataAsString();
-  }
-
-  // platform
-  let platform = '------';
-  if (contents.platform != null) {
-    platform = Utilities.base64Decode( contents.platform, Utilities.Charset.UTF_8 );
-    platform = Utilities.newBlob( platform ).getDataAsString();
-  }
+  if ( checkExistError(unic,sheet) ) {
+    return { 
+      success: 1,
+      unic: unic,
+      desc: 'Error is exist.'
+    };
+  };
+  
+  // start draw
+  let drawList = [];
 
   // get parent folder
   let spreadsheetId =  SpreadsheetApp.getActiveSpreadsheet().getId();
@@ -177,15 +142,15 @@ function doPost(e) {
   let newFolderId = parentFolder.createFolder(unic).getId();
 
   // get files
-  for (let j = 1; j <= 10; j++) {
-    if (contents['file' + j] != null && contents['filename' + j] != null) {
-      let file = contents['file' + j];
+  for (let i = 1; i <= 10; i++) {
+    if (params['file' + i] != null && params['filename' + i] != null) {
+      let file = params['file' + i];
       file = Utilities.base64Decode(file);
-      let filename = contents['filename' + j];
-      let blob = Utilities.newBlob(file, e.postData.type, filename);
+      let filename = params['filename' + i];
+      let blob = Utilities.newBlob(file, postData.type, filename);
       DriveApp.getFolderById(newFolderId).createFile(blob);
-    }
-  }
+    };
+  };
 
   // compress
   let folder = DriveApp.getFolderById(newFolderId);
@@ -200,21 +165,80 @@ function doPost(e) {
   folderToDelete.setTrashed(true);
 
   // create link
-  let link = isZip ? 'https://drive.google.com/file/d/' + zipId + '/view?usp=sharing' : null;
+  link = isZip ? 'https://drive.google.com/file/d/' + zipId + '/view?usp=sharing' : null;
 
-  // fill sheet
-  curSheet.getRange("A" + posSheet).setValue(date);
-  curSheet.getRange("B" + posSheet).setValue(unic);
-  curSheet.getRange("C" + posSheet).setValue(code);
-  curSheet.getRange("D" + posSheet).setValue(message);
-  curSheet.getRange("E" + posSheet).setValue(platform);
-  curSheet.getRange("F" + posSheet).setFormula( isZip ? '=HYPERLINK("' + link + '","Download")' : null );
+  // parse message
+  message = Utilities.base64Decode( message, Utilities.Charset.UTF_8 );
+  message = Utilities.newBlob( message ).getDataAsString();
 
-  // response
-  let resp = {};
-  resp.success = 1;
-  resp.link = link;
-  resp.unic = unic;
+  // parse custom params
+  let customParamsParse = JSON.parse(customParams);
+  let customParamsString = '';
+  let dev = '';
+  for (let k in customParamsParse) {
+    customParamsString = customParamsString + dev + k + ': ' + customParamsParse[k];
+    dev = '\n';
+  };
 
-  return ContentService.createTextOutput(JSON.stringify(resp));
-}
+  let values = [
+    date,
+    unic,
+    code,
+    message,
+    platform,
+    appVersion,
+    customParamsString
+  ];
+  drawList.push(values);
+
+  if (drawList.length > 0) {
+    let finishLength = lastRow + drawList.length;
+    sheet.getRange('A' + startLength + ':G' + finishLength).setValues(drawList).setBackground(colors[ type === 'Crash' ? 1 : 0 ]);
+    sheet.getRange("H" + finishLength).setFormula( isZip ? '=HYPERLINK("' + link + '","Download")' : null );
+  };
+
+  return { 
+    success: 1,
+    unic: unic,
+    link: link
+  };
+};
+
+// Check existsError
+function checkExistError(unic,sheet) {
+  // params
+  unic = unic ? unic : '';
+  sheet = sheet ? sheet : sheetWarning;
+
+  // search errors
+  let rows = sheet.getDataRange();
+  let numRows = rows.getNumRows();
+
+  for (let i = numRows; i >= 2; i--) {
+    let curUnic = sheet.getRange("B" + i).getValue();
+    if ( curUnic === unic ) {
+      return true
+    };
+  };
+
+  return false;
+};
+
+// Get Blobs
+function getBlobs(rootFolder, path) {
+  let blobs = [];
+  let files = rootFolder.getFiles();
+  while (files.hasNext()) {
+    let file = files.next().getBlob();
+    file.setName(path+file.getName());
+    blobs.push(file);
+  };
+  let folders = rootFolder.getFolders();
+  while (folders.hasNext()) {
+    let folder = folders.next();
+    let fPath = path+folder.getName()+'/';
+    blobs.push(Utilities.newBlob([]).setName(fPath)); // comment/uncomment this line to skip/include empty folders
+    blobs = blobs.concat(getBlobs(folder, fPath));
+  };
+  return blobs;
+};

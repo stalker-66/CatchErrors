@@ -28,6 +28,8 @@ local private = {
 	config = {},
 	url = "https://script.google.com/macros/s/youDeploymentID/exec",
 	platform = system.getInfo("platform").." "..system.getInfo("platformVersion"),
+	appVersion = system.getInfo("environment")=="simulator" and "0.00" or system.getInfo("appVersionString"), 
+	customParams = nil,
 	workSimulator = false,
 	debug = false,
 	init = false,
@@ -134,6 +136,18 @@ private.getUnic = function()
 	end)
 end
 
+private.tableToStr = function(params)
+	local res,sp = "","&"
+	for k,v in pairs(params) do
+		if type(v) == "boolean" then
+			v = v and "true" or "false"
+		end
+		res = res .. sp .. k .. "=" .. v
+	end
+	res = res:gsub("+", "%%2B")	
+	return res
+end
+
 private.parsePrint = function(...)
 	local str = ""
 	local args = {...}
@@ -174,12 +188,19 @@ private.setTask = function(p)
 		public.clearLog()
 	end
 
-	body.unic = mime_b64( unic )
-	body.type = mime_b64( p.type )
-	body.date = mime_b64( os_date("%x").." "..os_date("%X") )
-	body.code = mime_b64( p.errorCode )
-	body.message = mime_b64( p.message )
-	body.platform = mime_b64( private.platform )
+	body.unic = unic
+	body.type = p.type
+	body.date = os_date("%x").." "..os_date("%X")
+	body.code = p.errorCode
+	body.message = mime_b64(p.message)
+	body.platform = private.platform
+	body.appVersion = private.appVersion
+
+	local customParams = nil
+	if private.customParams and type(private.customParams)=="table" then
+		customParams = json.encode(private.customParams)
+	end
+	body.customParams = customParams
 
 	private.config[#private.config+1] = {
 		body = body,
@@ -254,9 +275,9 @@ private.sendToServer = function()
 			-- end
 		end, {
 			headers = {
-				["Content-Type"] = "application/json",
+				["Content-Type"] = "application/x-www-form-urlencoded",
 			},
-			body = json_encode(body),
+			body = private.tableToStr(body),
 		})
 	end
 end
@@ -401,6 +422,16 @@ public.init = function(p)
 		_print( "CatchErrors: Plugin initialized." )
 	end
 
+	-- set app version
+	if p.appVersion then
+		public.setAppVersion(p.appVersion)
+	end
+
+	-- set custom params
+	if p.customParams then
+		public.setCustomParams(p.customParams)
+	end
+
 	return true
 end
 
@@ -499,6 +530,53 @@ public.send = function(p)
 		private.showMessage()
 	end
 	return true
+end
+
+public.setAppVersion = function(ver)
+	if not private.init then
+		if private.debug then
+			_print( "CatchErrors: setAppVersion - Plugin not initialized." )
+		end
+		return false
+	end
+
+	if ver and type(ver)=="string" then
+		private.appVersion = ver
+		return true
+	else
+		if private.debug then
+			_print( "CatchErrors: setAppVersion - Invalid argument." )
+		end
+		return false
+	end
+end
+
+public.setCustomParams = function(customParams)
+	if not private.init then
+		if private.debug then
+			_print( "CatchErrors: setCustomParams - Plugin not initialized." )
+		end
+		return false
+	end
+
+	if customParams and type(customParams)=="table" then
+		for k,v in pairs(customParams) do
+			if type(v)=="string" or type(v)=="number" or type(v)=="boolean" then
+				private.customParams = private.customParams and private.customParams or {}
+				private.customParams[k] = v
+			else
+				if private.debug then
+					_print( "CatchErrors: setCustomParams - Invalid value \""..tostring(k).."\"" )
+				end
+			end
+		end
+		return true
+	else
+		if private.debug then
+			_print( "CatchErrors: setCustomParams - Invalid Custom Params." )
+		end
+		return false
+	end
 end
 
 return public

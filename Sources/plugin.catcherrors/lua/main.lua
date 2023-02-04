@@ -19,6 +19,8 @@ catcherrors.init({
 			button = "OK",
 		}
 	},
+	-- appVersion = "1.002",
+	-- customParams = { name = "Tester102" },
 	workSimulator = true,
 	debug = true,
 })
@@ -28,14 +30,14 @@ catcherrors.setLanguageMessage("es")
 -- title --
 local title = display.newText{
 	text = "Catch Errors Plugin",
-	fontSize = display.contentHeight*.05
+	fontSize = display.contentHeight*.038
 }
 title.x = display.contentWidth*.5
 title.y = display.contentHeight*.18
 
 local auth = display.newText{
 	text = "by narkoz",
-	fontSize = display.contentHeight*.025
+	fontSize = display.contentHeight*.019
 }
 auth.x = title.x+title.width*.5-auth.width*.5
 auth.y = title.y+title.height*.5+auth.height*.5
@@ -65,7 +67,7 @@ local sendWarning = widget.newButton(
 	}
 )
 sendWarning.x = display.contentWidth*.5
-sendWarning.y = display.contentHeight*.5
+sendWarning.y = display.contentHeight*.35
 
 local sendCrash = widget.newButton(
 	{
@@ -107,6 +109,65 @@ local fakeCrash = widget.newButton(
 fakeCrash.x = display.contentWidth*.5
 fakeCrash.y = sendCrash.y+sendCrash.height*.5+fakeCrash.height
 
+local setFileList = widget.newButton(
+	{
+		shape = "roundedRect",
+		width = size,
+		height = size*.2,
+		cornerRadius = size*.05,
+		label = "Set New File List",
+		fontSize = size*.08,
+		fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		onRelease  = function()
+			catcherrors.setFileList({
+				{ filename = "data.json.txt", baseDir = system.ResourceDirectory }
+			})
+		end
+	}
+)
+setFileList.x = display.contentWidth*.5
+setFileList.y = fakeCrash.y+fakeCrash.height*.5+setFileList.height
+
+local setAppVersion = widget.newButton(
+	{
+		shape = "roundedRect",
+		width = size,
+		height = size*.2,
+		cornerRadius = size*.05,
+		label = "Set App Version",
+		fontSize = size*.08,
+		fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		onRelease  = function()
+			catcherrors.setAppVersion("0.025")
+		end
+	}
+)
+setAppVersion.x = display.contentWidth*.5
+setAppVersion.y = setFileList.y+setFileList.height*.5+setAppVersion.height
+
+local setCustomParams = widget.newButton(
+	{
+		shape = "roundedRect",
+		width = size,
+		height = size*.2,
+		cornerRadius = size*.05,
+		label = "Set Custom Params",
+		fontSize = size*.08,
+		fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		onRelease  = function()
+			catcherrors.setCustomParams({
+				name = "Pug",
+				weight = 10.5
+			})
+		end
+	}
+)
+setCustomParams.x = display.contentWidth*.5
+setCustomParams.y = setAppVersion.y+setAppVersion.height*.5+setCustomParams.height
+
 local printTable = widget.newButton(
 	{
 		shape = "roundedRect",
@@ -132,7 +193,7 @@ local printTable = widget.newButton(
 	}
 )
 printTable.x = display.contentWidth*.5
-printTable.y = fakeCrash.y+fakeCrash.height*.5+printTable.height
+printTable.y = setCustomParams.y+setCustomParams.height*.5+printTable.height
 
 -- test print --
 print( "Launch Catch Errors Example Project" )
