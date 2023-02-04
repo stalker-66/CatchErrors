@@ -170,6 +170,24 @@ local catcherrors = require "plugin.catcherrors"
 > catcherrors.setAppVersion("1.002")
 > ```
 
+> Call this function if you need to set custom parameters that will be attached to the error after initialization.
+> ```lua
+> catcherrors.setCustomParams(paramsList)
+> ```
+> * **paramsList** (optional) <br/>
+> `Table`. List of custom parameters to upload with error message. Default is `nil`. <br/> <br/>
+> The parameter table must have the format: `key = value`. <br/>
+> Supported data type for ***key*** and ***value***: `string`, `number`, `boolean`. <br/>
+> ***The parameter table must not contain nested tables***. <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.setCustomParams({
+> 	name = "John",
+> 	email = "jh@jh.com",
+> })
+> ```
+
 ## Usage
 > * After the plugin is initialized, lua error catching starts. This completes the setup. You can use the ***catcherrors.send*** function in your application to send errors. <br/>
 > * If the error is not sent after it occurs, the error will continue to be sent the next time the application is run. <br/>
