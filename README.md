@@ -139,7 +139,6 @@ local catcherrors = require "plugin.catcherrors"
 > 	message = "Test Warning",
 > })
 > ```
-<br/>
 
 > Call this function if you need to replace the list of files that will be attached to the error after initialization.
 > ```lua
@@ -157,7 +156,19 @@ local catcherrors = require "plugin.catcherrors"
 > })
 > ```
 > The file size directly affects the speed of sending errors. <br/>
-> If you plan to upload files from ***system.ResourceDirectory***, be aware of Android limitations. See more - [system.ResourceDirectory](https://docs.coronalabs.com/api/library/system/ResourceDirectory.html). <br/> <br/>
+> If you plan to upload files from ***system.ResourceDirectory***, be aware of Android limitations. See more - [system.ResourceDirectory](https://docs.coronalabs.com/api/library/system/ResourceDirectory.html). <br/>
+
+> This function allows you to change the application version after initialization.
+> ```lua
+> catcherrors.setAppVersion(version)
+> ```
+> * **version** (optional) <br/>
+> `String`. Your application version. Default is `nil`. <br/> <br/>
+> 
+> `Example:` <br/>
+> ```lua
+> catcherrors.setAppVersion("1.002")
+> ```
 
 ## Usage
 > * After the plugin is initialized, lua error catching starts. This completes the setup. You can use the ***catcherrors.send*** function in your application to send errors. <br/>
