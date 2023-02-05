@@ -29,6 +29,17 @@ application =
 	showRuntimeErrors = false,
 }
 ```
+
+You can enable extended debug information for your application in ***build.settings***. See more - [neverStripDebugInfo](https://docs.coronalabs.com/guide/distribution/advancedSettings/index.html#build-control).
+```lua
+settings =
+{
+	    build =
+	    {
+			neverStripDebugInfo = true,
+	    },
+}
+```
 ## Require
 ```lua
 local catcherrors = require "plugin.catcherrors"
